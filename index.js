@@ -6,16 +6,17 @@
  * @version	1.2.1
  */
 var Promise = require('es6-promise').Promise;
-// var errorHandler = require('./errorHandler');
+var db = require('apier-database');
+var reqlog = require('reqlog');
 
-exports.authenticate = function(req, mongoose) {
+exports.authenticate = function(req) {
 	return new Promise(function(resolve) {
 		// check if we have a token to search with
 		if (req.requestData.token) {
-			findById(mongoose, 'Session', req.requestData.token)
+			findById('Session', req.requestData.token)
 			.then(function(result) {
 				if (result) {
-					findById(mongoose, 'User', result.userId)
+					findById('User', result.userId)
 					.then(function(result) {
 						if (result) {
 							req.activeUser = result;
@@ -24,11 +25,17 @@ exports.authenticate = function(req, mongoose) {
 							req.activeUser = 'null';
 							resolve();
 						}
+					}, function() {
+						req.activeUser = 'null';
+						resolve();
 					});
 				} else {
 					req.activeUser = 'null';
 					resolve();
 				}
+			}, function() {
+				req.activeUser = 'null';
+				resolve();
 			});
 		} else {
 			req.activeUser = 'null';
@@ -37,17 +44,23 @@ exports.authenticate = function(req, mongoose) {
 	});
 };
 
-// custom findById that has no limitations on the data it can load
-function findById(mongoose, schemaName, id) {
-	return new Promise(function(resolve) {
-		var Model = mongoose.model(schemaName);
+/**
+ * custom findById that has no limitations on the data it can load
+ * @method findById
+ * @param  {string} schemaName The schema to load
+ * @param  {string} id         The Object id to search with
+ * @return {Promise}           Just a promise :p
+ */
+function findById(schemaName, id) {
+	return new Promise(function(resolve, reject) {
+		var Model = db.mongoose.model(schemaName);
 
 		Model
 		.findById(id)
 		.exec(function(error, result) {
 			if (error) {
-				GLOBAL.log('internal server error', error);
-				// errorHandler.error(req, res, 'INTERNAL_SERVER_ERROR');
+				reqlog.error('internal server error', error);
+				reject(error);
 			} else {
 				resolve(result || 'notFound');
 			}

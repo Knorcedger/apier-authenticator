@@ -5,7 +5,8 @@
   "author": "Knorcedger",
   "bugs": "https://github.com/Knorcedger/apier-authenticator/issues",
   "dependencies": {
-    "es6-promise": "^3.1.2"
+    "es6-promise": "^3.1.2",
+    "reqlog": "^1.1.3"
   },
   "devDependencies": {
     "eslint": "^2.2.0",
