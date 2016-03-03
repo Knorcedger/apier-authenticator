@@ -1,10 +1,3 @@
-/**
- * @module authenticator
- * @description finds the user by the requestData token
- *              Adds the user in req.data.activeUser
- *              If user is not found, assigns 'null'
- * @version	1.2.1
- */
 var Promise = require('es6-promise').Promise;
 var db = require('apier-database');
 var reqlog = require('reqlog');
